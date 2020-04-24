@@ -136,14 +136,16 @@ def add_table_metadata(pv_record):
     table_meta = {}
 
     row_category_data = {}
-    # Get info from the first column
     row_categories = pv_record.table.tde_table.row_categories
-    data = row_categories.data
 
-    key_list = list(row_categories.col_header[0])
-    for i, key in enumerate(key_list):
-        for datum in data:
-            if ' '.join(list(datum)) == pv_record.table_row_categories:
+    keys = list(row_categories.pre_cleaned_table[0])
+    data = list(row_categories.pre_cleaned_table[1:])
+
+    for d in data:
+        datum = list(d)
+        indicator = ' '.join(datum)
+        if indicator == pv_record.table_row_categories:
+            for i, key in enumerate(keys):
                 row_category_data[key] = datum[i]
 
     table_meta['caption'] = pv_record.table.caption.text
@@ -205,7 +207,7 @@ if __name__ == '__main__':
                                 'units': '(10^-3.0) * Volt^(1.0)'}}}, Table(Caption('')))
        ]
 
-    paper = '/home/edward/pv/extractions/input_filtered_tables/dsc/C3TA10632B.html'
+    paper = '/home/edward/pv/extractions/input_filtered_tables/dsc/C3TA11527E.html'
 
     try:
         with open(paper, 'rb') as f:

@@ -128,4 +128,4 @@ class TestDatabase(unittest.TestCase):
 
         pv_record = PhotovoltaicRecord(input, table)
         table_meta = add_table_metadata(pv_record)
-        print(table_meta)
+        self.assertEqual(table_meta, {'caption': 'This is the caption', 'first_rows': {'Dye': 'G221', 'Electrolyte': 'Cobalt'}})
