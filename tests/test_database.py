@@ -1,7 +1,10 @@
 import unittest
 
-from pv_database.database import populate_metadata
+from pv_database.database import populate_metadata, add_table_metadata
 from chemdataextractor import Document
+from chemdataextractor.doc.table import Table
+from chemdataextractor.doc import Caption
+from dsc_db import PhotovoltaicRecord
 
 
 class TestDatabase(unittest.TestCase):
@@ -74,3 +77,55 @@ class TestDatabase(unittest.TestCase):
 
         metadata = populate_metadata(doc)
         self.assertEqual(metadata, expected)
+
+    def test_add_first_column(self):
+
+        table_input = [['CE',	'Jsc (mA cm−2)', 'Voc (V)', 'FF', 'PCE'], ['Pt', '11.11', '22.22', '33.33', '44.44'],
+                       ['Ag', '11.11', '22.22', '33.33', '44.44']]
+        table = Table(caption=Caption('Null'), table_data=table_input)
+
+        input = {
+            'voc': {'OpenCircuitVoltage': {'raw_units': '(mV)', 'raw_value': '756', 'specifier': 'Voc',
+                                       'units': '(10^-3.0) * Volt^(1.0)', 'value': [756.0]}},
+            'table_row_categories': 'Pt'
+        }
+        pv_record = PhotovoltaicRecord(input, table)
+        table_meta = add_table_metadata(pv_record)
+        expected = {'caption': 'Null', 'first_rows': {'CE': 'Pt'}}
+        self.assertEqual(table_meta, expected)
+
+    def test_add_first_column_2(self):
+        table_input = [['Dye',	'Electrolyte', 'Voc (V)', 'FF', 'PCE'], ['NT35', 'Iodine', '22.22', '33.33', '44.44'],
+                       ['', 'Cobalt', '22.22', '33.33', '44.44'], ['G221', 'Iodine', '22.22', '33.33', '44.44'],
+                       ['G221', 'Cobalt', '22.22', '33.33', '44.44']]
+        table = Table(caption=Caption('This is the caption'), table_data=table_input)
+
+
+        input = {'dye': {'Dye': [{'compound': {'labels': ['G221'],
+                               'names': ['(E)-3-(4-(bis(4-(hexyloxy)phenyl)amino)phenyl)-2-cyanoacrylic '
+                                         'acid',
+                                         '(E)-3-(4-(Bis(4-(hexyloxy)phenyl)amino)phenyl)-2-cyano '
+                                         'acrylic acid'],
+                               'roles': ['product']},
+                                  'raw_value': 'G221',
+                                  'specifier': 'Dye'}]},
+                 'electrolyte': {'Electrolyte': {'raw_value': 'Cobalt',
+                                                 'specifier': 'Electrolyte'}},
+                 'ff': {'FillFactor': {'raw_value': '0.765',
+                                       'specifier': 'FF',
+                                       'value': [0.765]}},
+                 'pce': {'PowerConversionEfficiency': {'raw_units': '(%)',
+                                                       'raw_value': '3.62',
+                                                       'specifier': 'η',
+                                                       'units': 'Percent^(1.0)',
+                                                       'value': [3.62]}},
+                 'table_row_categories': 'G221 Cobalt',
+                 'voc': {'OpenCircuitVoltage': {'raw_units': '(mV)',
+                                                'raw_value': '721',
+                                                'specifier': 'Voc',
+                                                'units': '(10^-3.0) * Volt^(1.0)',
+                                                'value': [721.0]}}}
+
+        pv_record = PhotovoltaicRecord(input, table)
+        table_meta = add_table_metadata(pv_record)
+        print(table_meta)

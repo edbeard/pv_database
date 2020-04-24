@@ -1,9 +1,11 @@
 from pymongo import MongoClient
 from mpi4py import MPI
 
-from dsc_db import PhotovoltaicRecord
-from chemdataextractor.doc import Table
+from dsc_db import PhotovoltaicRecord, create_dsscdb_from_file
+from chemdataextractor.doc import Table, Document
 from chemdataextractor.doc import Caption
+
+import os
 
 from pprint import pprint
 
@@ -95,6 +97,7 @@ def photovoltaic_record_to_database(pv_records, metadata):
             'dsc_material_components': {},
             'device_metrology': {},
             'dsc_material_metrology': {},
+            'table_data': {}, # A dictionary of raw info from the table
             'device_reference': [],
             'article_info': metadata
         }
@@ -118,10 +121,35 @@ def photovoltaic_record_to_database(pv_records, metadata):
                 raise Exception
             db_record['device_reference'] = ref_record
 
+        # Add the data from the first column of each table
+        db_record['table_data'] = add_table_metadata(pv_record)
+
         # pprint(db_record)
         db_records.append(db_record)
 
     return db_records
+
+
+def add_table_metadata(pv_record):
+    """ Adding data from the first column of the table"""
+
+    table_meta = {}
+
+    row_category_data = {}
+    # Get info from the first column
+    row_categories = pv_record.table.tde_table.row_categories
+    data = row_categories.data
+
+    key_list = list(row_categories.col_header[0])
+    for i, key in enumerate(key_list):
+        for datum in data:
+            if ' '.join(list(datum)) == pv_record.table_row_categories:
+                row_category_data[key] = datum[i]
+
+    table_meta['caption'] = pv_record.table.caption.text
+    table_meta['first_rows'] = row_category_data
+
+    return table_meta
 
 
 if __name__ == '__main__':
@@ -177,7 +205,27 @@ if __name__ == '__main__':
                                 'units': '(10^-3.0) * Volt^(1.0)'}}}, Table(Caption('')))
        ]
 
-    photovoltaic_record_to_database(practice_records, None)
+    paper = '/home/edward/pv/extractions/input_filtered_tables/dsc/C3TA10632B.html'
+
+    try:
+        with open(paper, 'rb') as f:
+            doc = Document.from_file(f)
+    except Exception as e:
+        print('the failed paper: %s' % paper)
+
+    filename = os.path.splitext(os.path.basename(paper))[0]
+
+    # Step 2: Obtain the PV records
+    pv_records = create_dsscdb_from_file(doc)
+
+    # Step 3: When records found, get the metadata
+    if pv_records:
+        metadata = populate_metadata(doc)
+
+        # Step 4: Convert to JSON
+        output_dict = photovoltaic_record_to_database(pv_records, metadata)
+        print(output_dict)
+
 
 
 
