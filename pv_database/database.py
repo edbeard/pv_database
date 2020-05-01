@@ -79,7 +79,7 @@ def populate_metadata(doc):
     return meta_dict
 
 
-def photovoltaic_record_to_database(pv_records, metadata):
+def photovoltaic_record_to_database(pv_records, metadata, citations):
     """
     Converts the photovoltaic record to the correct database format
     :param pv_records: List of PhotovoltaicRecord objects to be converted
@@ -113,13 +113,8 @@ def photovoltaic_record_to_database(pv_records, metadata):
                     data = next(iter(field_record.values()))
                     db_record[category][field] = data
 
-
-        # Add reference data
-        ref_record = getattr(pv_record, 'ref', None)
-        if ref_record and field_record is not None:
-            if len(field_record.keys()) > 1:
-                raise Exception
-            db_record['device_reference'] = ref_record
+        # Add citation data
+        add_citation_data(pv_record, db_record, citations)
 
         # Add the data from the first column of each table
         db_record['table_data'] = add_table_metadata(pv_record)
@@ -128,6 +123,39 @@ def photovoltaic_record_to_database(pv_records, metadata):
         db_records.append(db_record)
 
     return db_records
+
+
+def add_citation_data(pv_record, db_record, citations):
+    """
+    Add the citation data to the db_records
+    :param pv_record: Input photovoltaic record object
+    :param db_record: Input db_record object
+    :return:
+    """
+
+    ref_record = getattr(pv_record, 'ref', None)
+    if ref_record is not None:
+        if len(ref_record.keys()) > 1:
+            raise Exception
+        if 'value' in ref_record['Reference'].keys():
+            ref_id = int(ref_record['Reference']['value'][0]) - 1
+            if 0 < ref_id < len(citations):
+                ref_record['Reference']['content'] = citations[ref_id].text
+
+        db_record['device_reference'] = ref_record['Reference']
+
+    return db_record
+
+
+def populate_citations(doc):
+    """
+    Get the citation data from the document
+    :param pv_record:
+    :return:
+    """
+
+    # get the documents citation data
+    return [citation.serialize() for citation in doc.citations]
 
 
 def add_table_metadata(pv_record):
@@ -149,7 +177,7 @@ def add_table_metadata(pv_record):
                 row_category_data[key] = datum[i]
 
     table_meta['caption'] = pv_record.table.caption.text
-    table_meta['first_rows'] = row_category_data
+    table_meta['first_columns'] = row_category_data
 
     return table_meta
 
@@ -207,7 +235,7 @@ if __name__ == '__main__':
                                 'units': '(10^-3.0) * Volt^(1.0)'}}}, Table(Caption('')))
        ]
 
-    paper = '/home/edward/pv/extractions/input_filtered_tables/dsc/C3TA11527E.html'
+    paper = '/home/edward/pv/extractions/input_filtered_tables/dsc/C3CS60449G.html'
 
     try:
         with open(paper, 'rb') as f:
@@ -217,6 +245,8 @@ if __name__ == '__main__':
 
     filename = os.path.splitext(os.path.basename(paper))[0]
 
+    citations = populate_citations(doc)
+
     # Step 2: Obtain the PV records
     pv_records = create_dsscdb_from_file(doc)
 
@@ -225,8 +255,8 @@ if __name__ == '__main__':
         metadata = populate_metadata(doc)
 
         # Step 4: Convert to JSON
-        output_dict = photovoltaic_record_to_database(pv_records, metadata)
-        print(output_dict)
+        output_dict = photovoltaic_record_to_database(pv_records, metadata, citations)
+        pprint(output_dict)
 
 
 

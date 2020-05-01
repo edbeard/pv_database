@@ -7,7 +7,7 @@ import os
 import json
 import sys
 
-from pv_database.database import populate_metadata, photovoltaic_record_to_database
+from pv_database.database import populate_metadata, photovoltaic_record_to_database, populate_citations
 from dsc_db import create_dsscdb_from_file
 from dsc_db.model import PhotovoltaicRecord
 from chemdataextractor import Document
@@ -54,6 +54,9 @@ def create_db(host, port, db_name):
 
             filename = os.path.splitext(os.path.basename(paper))[0]
 
+            # Steb 1b - obtain the document citations
+            citations = populate_citations(doc)
+
             # Step 2: Obtain the PV records
             pv_records = create_dsscdb_from_file(doc)
 
@@ -62,7 +65,7 @@ def create_db(host, port, db_name):
                 metadata = populate_metadata(doc)
 
                 # Step 4: Convert to JSON
-                output_dict = photovoltaic_record_to_database(pv_records, metadata)
+                output_dict = photovoltaic_record_to_database(pv_records, metadata, citations)
 
                 output_path = os.path.join(output_dir, filename + '.json')
                 with open(output_path, 'w') as outf:

@@ -1,9 +1,9 @@
 import unittest
 
-from pv_database.database import populate_metadata, add_table_metadata
+from pv_database.database import populate_metadata, add_table_metadata, add_citation_data
 from chemdataextractor import Document
 from chemdataextractor.doc.table import Table
-from chemdataextractor.doc import Caption
+from chemdataextractor.doc import Caption, Citation
 from dsc_db import PhotovoltaicRecord
 
 
@@ -129,3 +129,43 @@ class TestDatabase(unittest.TestCase):
         pv_record = PhotovoltaicRecord(input, table)
         table_meta = add_table_metadata(pv_record)
         self.assertEqual(table_meta, {'caption': 'This is the caption', 'first_rows': {'Dye': 'G221', 'Electrolyte': 'Cobalt'}})
+
+    def test_add_citations(self):
+        citations = [Citation('This is not the right citation'), Citation('D. D. Eley, Nature, 1948, 162, 819\xa0CrossRefCAS')]
+        table = Table(Caption('Dummy table'))
+
+
+        input = {'dye': {'Dye': [{'compound': {'labels': ['G221'],
+                               'names': ['(E)-3-(4-(bis(4-(hexyloxy)phenyl)amino)phenyl)-2-cyanoacrylic '
+                                         'acid',
+                                         '(E)-3-(4-(Bis(4-(hexyloxy)phenyl)amino)phenyl)-2-cyano '
+                                         'acrylic acid'],
+                               'roles': ['product']},
+                                  'raw_value': 'G221',
+                                  'specifier': 'Dye'}]},
+                 'electrolyte': {'Electrolyte': {'raw_value': 'Cobalt',
+                                                 'specifier': 'Electrolyte'}},
+                 'ff': {'FillFactor': {'raw_value': '0.765',
+                                       'specifier': 'FF',
+                                       'value': [0.765]}},
+                 'pce': {'PowerConversionEfficiency': {'raw_units': '(%)',
+                                                       'raw_value': '3.62',
+                                                       'specifier': 'η',
+                                                       'units': 'Percent^(1.0)',
+                                                       'value': [3.62]}},
+                 'ref': {'Reference': {
+                     'value': [2.0],
+                     'raw_value': '2',
+                     'specifier': 'Ref.'
+                         }},
+                 'table_row_categories': 'G221 Cobalt',
+                 'voc': {'OpenCircuitVoltage': {'raw_units': '(mV)',
+                                                'raw_value': '721',
+                                                'specifier': 'Voc',
+                                                'units': '(10^-3.0) * Volt^(1.0)',
+                                                'value': [721.0]}}}
+
+        pv_record = PhotovoltaicRecord(input, table)
+        db_record = add_citation_data(pv_record, {}, citations)
+        expected = {'device_reference': {'value': [2.0], 'raw_value': '2', 'specifier': 'Ref.', 'content': 'D. D. Eley, Nature, 1948, 162, 819\xa0CrossRefCAS'}}
+        self.assertEqual(db_record, expected)
