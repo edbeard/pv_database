@@ -45,22 +45,22 @@ class TestDatabase(unittest.TestCase):
         with open(path_to_doc, 'rb') as f:
             doc = Document.from_file(f)
 
-            expected = {'authors': ['Monica Samal',
-                 'Priyaranjan Mohapatra',
-                 'Ramesh Subbiah',
-                 'Chang-Lyoul Lee',
-                 'Benayad Anass',
-                 'Jang Ah Kim',
-                 'Taesung Kim',
-                 'Dong Kee Yi',
-                 'Monica Samal',
-                 'Priyaranjan Mohapatra',
-                 'Ramesh Subbiah',
-                 'Chang-Lyoul Lee',
-                 'Benayad Anass',
-                 'Jang Ah Kim',
-                 'Taesung Kim',
-                 'Dong Kee Yi'],
+            expected = {'authors': ['Monica\xa0Samal',
+             'Priyaranjan\xa0Mohapatra',
+             'Ramesh\xa0Subbiah',
+             'Chang-Lyoul\xa0Lee',
+             'Benayad\xa0Anass',
+             'Jang Ah\xa0Kim',
+             'Taesung\xa0Kim',
+             'Dong Kee\xa0Yi',
+             'Monica\xa0Samal',
+             'Priyaranjan\xa0Mohapatra',
+             'Ramesh\xa0Subbiah',
+             'Chang-Lyoul\xa0Lee',
+             'Benayad\xa0Anass',
+             'Jang Ah\xa0Kim',
+             'Taesung\xa0Kim',
+             'Dong Kee\xa0Yi'],
              'date': '2013/09/26',
              'doi': '10.1039/C3NR02333H',
              'firstpage': '9793',
@@ -91,7 +91,7 @@ class TestDatabase(unittest.TestCase):
         }
         pv_record = PhotovoltaicRecord(input, table)
         table_meta = add_table_metadata(pv_record)
-        expected = {'caption': 'Null', 'first_rows': {'CE': 'Pt'}}
+        expected = {'caption': 'Null', 'first_columns': {'CE': 'Pt'}}
         self.assertEqual(table_meta, expected)
 
     def test_add_first_column_2(self):
@@ -128,7 +128,7 @@ class TestDatabase(unittest.TestCase):
 
         pv_record = PhotovoltaicRecord(input, table)
         table_meta = add_table_metadata(pv_record)
-        self.assertEqual(table_meta, {'caption': 'This is the caption', 'first_rows': {'Dye': 'G221', 'Electrolyte': 'Cobalt'}})
+        self.assertEqual(table_meta, {'caption': 'This is the caption', 'first_columns': {'Dye': 'G221', 'Electrolyte': 'Cobalt'}})
 
     def test_add_citations(self):
         citations = [Citation('This is not the right citation'), Citation('D. D. Eley, Nature, 1948, 162, 819\xa0CrossRefCAS')]
