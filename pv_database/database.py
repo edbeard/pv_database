@@ -6,6 +6,8 @@ from chemdataextractor.doc import Table, Document
 from chemdataextractor.doc import Caption
 
 import os
+import json
+from copy import deepcopy
 
 from pprint import pprint
 
@@ -98,7 +100,7 @@ def photovoltaic_record_to_database(pv_records, metadata, citations):
             'device_metrology': {},
             'dsc_material_metrology': {},
             'table_data': {}, # A dictionary of raw info from the table
-            'device_reference': [],
+            'device_reference': {}, # A dictionary of the reference number, and the data of the citation
             'article_info': metadata
         }
 
@@ -111,10 +113,16 @@ def photovoltaic_record_to_database(pv_records, metadata, citations):
                         raise Exception
 
                     data = next(iter(field_record.values()))
-                    db_record[category][field] = data
+                    if field == 'semiconductor':
+                        if 'thickness' in data.keys():
+                            updated_data = deepcopy(data)
+                            updated_data['thickness'] = data['thickness']['SemiconductorThickness']
+                            db_record[category][field] = updated_data
+                    else:
+                        db_record[category][field] = data
 
         # Add citation data
-        add_citation_data(pv_record, db_record, citations)
+        db_record['device_reference'] = add_citation_data(pv_record, citations)
 
         # Add the data from the first column of each table
         db_record['table_data'] = add_table_metadata(pv_record)
@@ -125,11 +133,10 @@ def photovoltaic_record_to_database(pv_records, metadata, citations):
     return db_records
 
 
-def add_citation_data(pv_record, db_record, citations):
+def add_citation_data(pv_record, citations):
     """
     Add the citation data to the db_records
     :param pv_record: Input photovoltaic record object
-    :param db_record: Input db_record object
     :return:
     """
 
@@ -140,11 +147,10 @@ def add_citation_data(pv_record, db_record, citations):
         if 'value' in ref_record['Reference'].keys():
             ref_id = int(ref_record['Reference']['value'][0]) - 1
             if 0 < ref_id < len(citations):
-                ref_record['Reference']['content'] = citations[ref_id].text
+                ref_record['Reference']['content'] = citations[ref_id]['content']
+                return ref_record['Reference']
 
-        db_record['device_reference'] = ref_record['Reference']
-
-    return db_record
+    return {}
 
 
 def populate_citations(doc):
@@ -235,7 +241,7 @@ if __name__ == '__main__':
                                 'units': '(10^-3.0) * Volt^(1.0)'}}}, Table(Caption('')))
        ]
 
-    paper = '/home/edward/pv/extractions/input_filtered_tables/dsc/C3CS60449G.html'
+    paper = '/home/edward/pv/extractions/input_filtered_tables/dsc/C6NR03052A.html'
 
     try:
         with open(paper, 'rb') as f:
@@ -257,6 +263,9 @@ if __name__ == '__main__':
         # Step 4: Convert to JSON
         output_dict = photovoltaic_record_to_database(pv_records, metadata, citations)
         pprint(output_dict)
+
+        with open('../debug.json', 'w') as outf:
+            json.dump(output_dict, outf)
 
 
 
