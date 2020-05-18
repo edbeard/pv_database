@@ -38,7 +38,7 @@ from pprint import pprint
 # exposure_time = ModelType(ExposureTime, required=False, contextual=True)
 
 device_characteristics = [
-    'voc', 'jsc', 'ff', 'pce'#, 'p_in', 'p_max'
+    'voc', 'jsc', 'ff', 'pce', 'isc' #, 'p_in', 'p_max'
 ]
 
 dsc_material_components = [
@@ -50,7 +50,7 @@ device_metrology = [
 ]
 
 dsc_material_metrology = [
-    'dye_loading', 'charge_transfer_resisitance', 'series_resisitance'
+    'dye_loading', 'charge_transfer_resisitance', 'series_resisitance', 'specific_charge_transfer_resistance', 'specific_series_resistance'
 ]
 
 all_properties = {
@@ -241,7 +241,7 @@ if __name__ == '__main__':
                                 'units': '(10^-3.0) * Volt^(1.0)'}}}, Table(Caption('')))
        ]
 
-    paper = '/home/edward/pv/extractions/input_filtered_tables/dsc/C6NR03052A.html'
+    paper = '/home/edward/pv/extractions/input_filtered_tables/dsc/C6NR01838F.html'
 
     try:
         with open(paper, 'rb') as f:
