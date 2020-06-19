@@ -38,7 +38,7 @@ from pprint import pprint
 # exposure_time = ModelType(ExposureTime, required=False, contextual=True)
 
 device_characteristics = [
-    'voc', 'jsc', 'ff', 'pce', 'isc' #, 'p_in', 'p_max'
+    'voc', 'jsc', 'ff', 'pce'
 ]
 
 dsc_material_components = [
@@ -46,11 +46,11 @@ dsc_material_components = [
 ]
 
 device_metrology = [
-    'solar_simulator', 'active_area', 'exposure_time'
+    'solar_simulator', 'active_area', 'exposure_time', 'pin',  'pmax', 'isc', 'specific_charge_transfer_resistance', 'specific_series_resistance'
 ]
 
 dsc_material_metrology = [
-    'dye_loading', 'charge_transfer_resisitance', 'series_resisitance', 'specific_charge_transfer_resistance', 'specific_series_resistance'
+    'dye_loading', 'charge_transfer_resistance', 'series_resistance'
 ]
 
 all_properties = {
@@ -69,13 +69,7 @@ def populate_metadata(doc):
     """
 
     metadata = doc.metadata
-    if len(metadata) == 2:
-        # Merge these cases from Elsevier where 2 metadata locations were used
-        dict1 = metadata[0].data
-        dict2 = metadata[1].data
-        meta_dict = {**dict1, **dict2}
-    else:
-        meta_dict = metadata[0].data
+    meta_dict = metadata[0].data
 
     #pprint(meta_dict)
     return meta_dict
@@ -241,7 +235,7 @@ if __name__ == '__main__':
                                 'units': '(10^-3.0) * Volt^(1.0)'}}}, Table(Caption('')))
        ]
 
-    paper = '/home/edward/pv/extractions/input_filtered_tables/dsc/C6NR01838F.html'
+    paper = '/home/edward/pv/extractions/psc_fscore_eval/input_filtered_tables/psc/10.1016:j.jiec.2017.12.002.xml'
 
     try:
         with open(paper, 'rb') as f:
