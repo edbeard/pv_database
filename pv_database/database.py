@@ -166,18 +166,24 @@ def add_table_metadata(pv_record):
     row_category_data = {}
     row_categories = pv_record.table.tde_table.row_categories
 
-    keys = list(row_categories.pre_cleaned_table[0])
-    data = list(row_categories.pre_cleaned_table[1:])
+    if row_categories is not None:
 
-    for d in data:
-        datum = list(d)
-        indicator = ' '.join(datum)
-        if indicator == pv_record.table_row_categories:
-            for i, key in enumerate(keys):
-                row_category_data[key] = datum[i]
+        keys = list(row_categories.pre_cleaned_table[0])
+        data = list(row_categories.pre_cleaned_table[1:])
 
-    table_meta['caption'] = pv_record.table.caption.text
-    table_meta['first_columns'] = row_category_data
+        for d in data:
+            datum = list(d)
+            indicator = ' '.join(datum)
+            if indicator == pv_record.table_row_categories:
+                for i, key in enumerate(keys):
+                    row_category_data[key] = datum[i]
+
+        table_meta['caption'] = pv_record.table.caption.text
+        table_meta['first_columns'] = row_category_data
+
+    else:
+        table_meta['caption'] = 'pv_record.table.caption.text'
+        table_meta['first_columns'] = {}
 
     return table_meta
 
@@ -235,7 +241,7 @@ if __name__ == '__main__':
                                 'units': '(10^-3.0) * Volt^(1.0)'}}}, Table(Caption('')))
        ]
 
-    paper = '/home/edward/pv/extractions/psc_fscore_eval/input_filtered_tables/psc/10.1016:j.jiec.2017.12.002.xml'
+    paper = '/home/edward/pv/extractions/dsc_rsc_filtered_tables/dsc/C6CP08180K.html'
 
     try:
         with open(paper, 'rb') as f:
@@ -262,14 +268,6 @@ if __name__ == '__main__':
             json.dump(output_dict, outf)
 
 
-
-
-def run_parallel():
-
-    """ Ruin the dssc_db script in parallel env."""
-
-    if rank == 0:
-        print('This doi is: %s, rank: %s' % (rank, doi))
 
 
 # class DscDatabase():

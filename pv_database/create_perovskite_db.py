@@ -1,5 +1,5 @@
 """
-Create the database
+Create the  perovskite database
 """
 
 from mpi4py import MPI
@@ -8,15 +8,16 @@ import json
 import sys
 import traceback
 
-from pv_database.database import populate_metadata, photovoltaic_record_to_database, populate_citations
-from dsc_db import create_dsscdb_from_file
+from pv_database.database import populate_metadata, populate_citations
+from pv_database.perovskite_database import perovskite_record_to_database
+from dsc_db.run_perovskites import create_pdb_from_file
 from chemdataextractor import Document
 
 
-root_dir = '/projects/SolarWindowsADSP/ebeard/pv_database/corpus/ELSEVIER/dsc'
-output_dir = '/projects/SolarWindowsADSP/ebeard/pv_database/output'
-processed_input_dir = '/projects/SolarWindowsADSP/ebeard/pv_database/processed_input'
-errored_input_dir = '/projects/SolarWindowsADSP/ebeard/pv_database/errored_input'
+root_dir = '/projects/SolarWindowsADSP/ebeard/pv_database/perovskite_input'
+output_dir = '/projects/SolarWindowsADSP/ebeard/pv_database/output_psc'
+processed_input_dir = '/projects/SolarWindowsADSP/ebeard/pv_database/processed_input_psc'
+errored_input_dir = '/projects/SolarWindowsADSP/ebeard/pv_database/errored_input_psc'
 
 
 def create_db(host, port, db_name):
@@ -58,14 +59,14 @@ def create_db(host, port, db_name):
                 citations = populate_citations(doc)
 
                 # Step 2: Obtain the PV records
-                pv_records = create_dsscdb_from_file(doc)
+                pv_records = create_pdb_from_file(doc)
 
                 # Step 3: When records found, get the metadata
                 if pv_records:
                     metadata = populate_metadata(doc)
 
                     # Step 4: Convert to JSON
-                    output_dict = photovoltaic_record_to_database(pv_records, metadata, citations)
+                    output_dict = perovskite_record_to_database(pv_records, metadata, citations)
 
                     output_path = os.path.join(output_dir, filename + '.json')
                     with open(output_path, 'w') as outf:

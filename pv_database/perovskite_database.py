@@ -21,9 +21,9 @@ psc_material_metrology = [
 
 all_properties = {
     'device_characteristics': device_characteristics,
-    'dsc_material_components': psc_material_components,
+    'psc_material_components': psc_material_components,
     'device_metrology': device_metrology,
-    'dsc_material_metrology': psc_material_metrology,
+    'psc_material_metrology': psc_material_metrology,
 }
 
 
@@ -42,9 +42,9 @@ def perovskite_record_to_database(pv_records, metadata, citations):
 
         db_record = {
             'device_characteristics': {},
-            'dsc_material_components': {},
+            'psc_material_components': {},
             'device_metrology': {},
-            'dsc_material_metrology': {},
+            'psc_material_metrology': {},
             'table_data': {}, # A dictionary of raw info from the table
             'device_reference': {}, # A dictionary of the reference number, and the data of the citation
             'article_info': metadata
@@ -74,7 +74,7 @@ def perovskite_record_to_database(pv_records, metadata, citations):
 
 
 if __name__ == '__main__':
-    paper = '/home/edward/pv/extractions/psc_fscore_eval/input_filtered_tables/psc/10.1016:j.cplett.2017.12.012.xml'
+    paper = '/home/edward/pv/extractions/psc_rsc_filtered_tables/psc/C7TA00894E.html'
 
     try:
         with open(paper, 'rb') as f:
