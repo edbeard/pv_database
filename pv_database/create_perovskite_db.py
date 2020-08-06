@@ -19,6 +19,9 @@ output_dir = '/projects/SolarWindowsADSP/ebeard/pv_database/output_psc'
 processed_input_dir = '/projects/SolarWindowsADSP/ebeard/pv_database/processed_input_psc'
 errored_input_dir = '/projects/SolarWindowsADSP/ebeard/pv_database/errored_input_psc'
 
+# /projects/SolarWindowsADSP/ebeard/pv_database/corpus/ELSEVIER/psc
+# /projects/SolarWindowsADSP/ebeard/pv_database/corpus/RSC/psc
+
 
 def create_db(host, port, db_name):
     # MPI parallel details

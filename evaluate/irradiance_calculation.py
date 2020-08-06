@@ -18,6 +18,7 @@ def evaluate_irradiance_from_directory(input_path):
 
     total_success = 0
     total_fail = 0
+    failure_info = [['html_link', 'voc', 'jsc', 'ff', 'pce', 'extracted_ss', 'calc_ss', 'calc_ss_error']]
     for file in file_paths:
         with open(file, 'r') as f:
             json_text = f.read()
@@ -40,6 +41,11 @@ def evaluate_irradiance_from_directory(input_path):
                             local_success += 1
                         else:
                             local_fail += 1
+                            html_link = record['article_info']['html_url']
+                            device_characteristics = record['device_characteristics']
+                            failure_info.append([html_link, device_characteristics['voc'], device_characteristics['jsc'], \
+                                                 device_characteristics['ff'], device_characteristics['pce'], test_values, calc_values, calc_error])
+
 
         print('For document %s the results are...' % file)
         print('Successes: %s' % str(local_success))

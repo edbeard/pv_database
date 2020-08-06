@@ -42,7 +42,7 @@ device_characteristics = [
 ]
 
 dsc_material_components = [
-    'dye', 'substrate', 'semiconductor', 'redox_couple', 'counter_electrode', 'electrolyte'
+    'dye', 'substrate', 'semiconductor', 'semiconductor_thickness', 'redox_couple', 'counter_electrode', 'electrolyte'
 ]
 
 device_metrology = [
@@ -112,6 +112,9 @@ def photovoltaic_record_to_database(pv_records, metadata, citations):
                             updated_data = deepcopy(data)
                             updated_data['thickness'] = data['thickness']['SemiconductorThickness']
                             db_record[category][field] = updated_data
+                        else:
+                            db_record[category][field] = data
+
                     else:
                         db_record[category][field] = data
 
@@ -176,7 +179,18 @@ def add_table_metadata(pv_record):
             indicator = ' '.join(datum)
             if indicator == pv_record.table_row_categories:
                 for i, key in enumerate(keys):
-                    row_category_data[key] = datum[i]
+                    if key == '':
+                        new_key = '<no-heading' + str(i) + '>'
+                        row_category_data[new_key] = datum[i]
+                    elif key in row_category_data.keys():
+                        row_category_data[key] += ' ' + datum[i]
+                    else:
+                        row_category_data[key] = datum[i]
+
+        if row_category_data == {}:
+            # When still empty, assume it's just the 1st column
+            row_category_data[keys[0]] = pv_record.table_row_categories
+
 
         table_meta['caption'] = pv_record.table.caption.text
         table_meta['first_columns'] = row_category_data
@@ -241,7 +255,7 @@ if __name__ == '__main__':
                                 'units': '(10^-3.0) * Volt^(1.0)'}}}, Table(Caption('')))
        ]
 
-    paper = '/home/edward/pv/extractions/dsc_rsc_filtered_tables/dsc/C6CP08180K.html'
+    paper = '/home/edward/pv/extractions/dsc_rsc_filtered_tables/dsc/C3TA12077E.html'
 
     try:
         with open(paper, 'rb') as f:

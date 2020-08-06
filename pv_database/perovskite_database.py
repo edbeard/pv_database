@@ -74,7 +74,9 @@ def perovskite_record_to_database(pv_records, metadata, citations):
 
 
 if __name__ == '__main__':
-    paper = '/home/edward/pv/extractions/psc_rsc_filtered_tables/psc/C7TA00894E.html'
+    paper = '/home/edward/pv/extractions/psc_fscore_extra_eval/input_filtered_tables/psc/C6NR09032J.html'
+            #'/home/edward/pv/extractions/psc_fscore_eval/input_filtered_tables/psc/C4CC07367C.html'  # Doesn't merge Spiro-ometad from doc
+    # /home/edward/pv/extractions/psc_fscore_eval/input_filtered_tables/psc/10.1016:j.jallcom.2018.02.136.xml  # counter electrode
 
     try:
         with open(paper, 'rb') as f:
